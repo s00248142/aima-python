@@ -336,12 +336,16 @@ class Environment:
                 self.execute_action(agent, action)
             self.exogenous_change()
 
-    def run(self, steps=1000):
-        """Run the Environment for given number of time steps."""
+    def run(self, steps=10, step_counter=None):
+        """Run the Environment for given number of time steps.
+        Optionally updates an external step counter object."""
         for step in range(steps):
             if self.is_done():
                 return
+            if step_counter is not None:
+                step_counter['steps'] = step + 1  # Update step count
             self.step()
+
 
     def list_things_at(self, location, tclass=Thing):
         """Return all things exactly at a given location."""
@@ -795,6 +799,8 @@ class TrivialVacuumEnvironment(Environment):
             if self.status[agent.location] == 'Dirty':
                 agent.performance += 10
             self.status[agent.location] = 'Clean'
+            if hasattr(agent, 'model') and agent.model:
+                agent.model[agent.location] = 'Clean'
 
     def default_location(self, thing):
         """Agents start in either location at random."""
