@@ -336,7 +336,7 @@ class Environment:
                 self.execute_action(agent, action)
             self.exogenous_change()
 
-    def run(self, steps=10, step_counter=None):
+    def run(self, steps=1000, step_counter=None): # Optional step counter
         """Run the Environment for given number of time steps.
         Optionally updates an external step counter object."""
         for step in range(steps):
@@ -786,13 +786,18 @@ class TrivialVacuumEnvironment(Environment):
         """Returns the agent's location, and the location status (Dirty/Clean)."""
         return agent.location, self.status[agent.location]
 
-    def execute_action(self, agent, action):
+    def execute_action(self, agent, action): # Usually called from Env step()
         """Change agent's location and/or location's status; track performance.
         Score 10 for each dirt cleaned; -1 for each move."""
         if action == 'Right':
-            agent.location = loc_B
+            # For model-based agents we can update the model using hasattr()
+            if hasattr(agent, 'model') and agent.model:
+                agent.model[agent.location] = self.status[agent.location]
+            agent.location = loc_B # This is the action being performed
             agent.performance -= 1
         elif action == 'Left':
+            if hasattr(agent, 'model') and agent.model:
+                agent.model[agent.location] = self.status[agent.location]
             agent.location = loc_A
             agent.performance -= 1
         elif action == 'Suck':
@@ -800,7 +805,9 @@ class TrivialVacuumEnvironment(Environment):
                 agent.performance += 10
             self.status[agent.location] = 'Clean'
             if hasattr(agent, 'model') and agent.model:
-                agent.model[agent.location] = 'Clean'
+                # agent.model[agent.location] = 'Clean'
+                agent.model[agent.location] = self.status[agent.location]
+        print('Action: {}'.format(action)) # Helps track progress
 
     def default_location(self, thing):
         """Agents start in either location at random."""
