@@ -21,6 +21,14 @@ def is_legal_pos(grid, pos):
     num_cols = len(grid[0])
     return 0 <= i < num_rows and 0 <= j < num_cols
 
+def print_grid_status(status, title):
+        grid = []
+        grid = [[(i, j)
+                  for j in range(self.columns)] 
+                  for i in range(self.rows)]
+        print(title)
+
+
 
 # --------------------- Expanded Environment Subclass --------------------------
 
@@ -32,9 +40,14 @@ class ExpandedVacuumEnvironment(Environment):
 
     def __init__(self):
         super().__init__()
-        self.grid = [[(0,0), (0,1), (0,2)],
-                    [(1,0), (1,1), (1,2)],
-                    [(2,0), (2,1), (2,2)]]
+        # Specify dimensions of desired environment
+        self.rows = 3
+        self.columns = 3
+        # Generate grid using tuples contains in a matrix using dimensions above
+        self.grid = [[(i, j)
+                      for j in range(self.columns)] 
+                      for i in range(self.rows)]
+        # Create a dictionary to hold the clean/dirty status of each location
         self.status = {}
         for row in self.grid:
             for item in row:
@@ -57,7 +70,7 @@ class ExpandedVacuumEnvironment(Environment):
             if isinstance(thing, Agent):
                 thing.performance = 0
                 self.agents.append(thing)
-        '''Initialise the agent DFS stack list and predecessor diectionary'''
+        '''Initialise the agent DFS stack list and predecessor dictionary'''
         if hasattr(thing, 'dfs_stack') and thing.dfs_stack:
             thing.dfs_stack.push(location)
             thing.predecessors.update({location: None})
